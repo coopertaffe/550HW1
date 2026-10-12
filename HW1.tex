@@ -1,0 +1,90 @@
+\documentclass[12pt]{article}
+\usepackage[left=0.9in,right=0.9in,top=0.8in,bottom=1.05in]{geometry}
+\newcommand{\ligne}[1]{\rule[0.5ex]{\textwidth}{#1}\\}
+\usepackage[]{graphicx}
+\usepackage{wrapfig}
+\usepackage{physics}
+
+
+\begin{document}
+\begin{flushright}
+    Cooper Taffe
+\end{flushright}
+\begin{center}
+\textbf{Numerical PDEs Homework \#1}\\
+\end{center}
+\noindent
+\vspace{0.3cm}
+\noindent \textbf{Problem 1: Solve Stokes} \\
+We will use the method of manufactured solutions to verify that our system is operating as expected. So,
+let’s define analytical functions that align with our chosen boundary conditions:
+$$U_{an}(x,y) = \sin(2\pi y)\sin(2\pi x)$$
+$$V_{an}(x,y) = -3.5 + \cos(2\pi x)[\cos(2\pi y)-1]$$
+$$P_{an}(x,y) = \sin(2\pi y)\cos(2\pi x)$$
+From these, we can define our right hand side to force our solutions to fit these equation and solve our
+system using a standard backslash technique (for Ax = b, A\b = x). We can verify our solution by checking
+the magnitude of $\textbf{u}$, which we denote as $\|\textbf{u}\|=\sqrt{U^2+V^2}$. See Figure 2 for the solution plot.
+Note as well that $P_{sol}$ is not uniquely determined, so you will you have to subtract off the mean of $P_{sol}$
+from your solution when comparing to $P_{an}$ in the next section.
+\noindent
+\rule{\textwidth}{0.4pt} \\
+\textbf{Answer:}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{HW1/HW1_u.jpg}
+    \caption{Magnitude of \textbf{u}. \textbf{u} was found using a finite difference method on a staggered grid to solve the Stokes equations. The finite difference method was solved on 50 gridspaces.}
+    \label{fig1}
+\end{figure}
+\newpage
+\noindent \textbf{Problem 2: Error Analysis} \\
+Once the system has been solved, we can define the error of the solution, since we know that the solution
+should fit the forms described by equations 3, 4, and 5. To do this, iterate over an increasing number of grid
+points $(N x = N y)$ and show that we see second-order error decreases in our numerical solution $(U_{num})$ compared to our analytical solution $(U_{an})$. Refer to Figure 3 for an example of the expected error plots.
+We will calculate error using the following norm equation:
+$$\text{err}_U = \frac{\|U_{num}-U_{an}\|_2}{\|U_{an}\|_2}$$
+\noindent
+\rule{\textwidth}{0.4pt} \\
+\textbf{Answer:}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{HW1/HW1Error.jpg}
+    \caption{Relative Error of finite difference method versus Grid Size(N) where N=\{8,16,32,64,128\}. The numerical method solved stokes for the unknown x and y velocities (U and V respectively) and the unknown pressure (P). Each error matches the reference slope of negative two, meaning the method has order 2 convergence.}
+    \label{fig2}
+\end{figure}
+
+\newpage
+\noindent \textbf{Problem 3: Charlie's Rule} \\
+Charlie Peskin (the inventor of the IBM) says that you should never just stop one you have a cool code,
+\textbf{the best part is to play around with it.} \\
+\noindent
+\rule{\textwidth}{0.4pt} \\
+\textbf{Answer:} I chose to try out solving the linear algebra with GMRES. I used no restarts and a max iteration of the size of A. I found that this set up of gmres didn't work for larger N and took longer than backslash for smaller N. I guess I'll wait to learn about pre-conditioners to make GMRES a faster option. 
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{HW1/gmresTime.jpg}
+    \caption{Time to solve Ax=b versus number of gridspaces.  The plot shows both MATLAB's backslash method and a GMRES method for solving where A was set up using N=\{2,4,8,16,32\}.}
+    \label{fig3}
+\end{figure}
+
+In class we learned to set the GMRES tolerance to about .01 times the largest error in creating A. I decided to play around with the tolerance, seeing what the plot looked like if the error from GMRES was greater than the error from the finite difference method.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{HW1/gmresBadtol.jpg}
+    \caption{Magnitude of \textbf{u}. \textbf{u} was approximated using a finite difference method to solve and stokes equations and GMRES to solve the linear algebra involved in the method. This plot used grid size N=32 and a tolerance of .1 in GMRES.}
+    \label{fig4}
+\end{figure}
+
+This plot doesn't look like the solution plot in part one. The error is coming from the GMRES method since the tolerance was set higher than the error you get from the finite difference method. I checked with an appropriate tolerance and GMRES produces the pretty much same plot as the backslash method.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{HW1/gmresGoodtol.jpg}
+    \caption{Magnitude of \textbf{u}. \textbf{u} was approximated using a finite difference method to solve and stokes equations and GMRES to solve the linear algebra involved in the method. This plot used grid size N=32 and a tolerance of $10^{-5}$ in GMRES.}
+    \label{fig5}
+\end{figure}
+
+
+
+\end{document}
